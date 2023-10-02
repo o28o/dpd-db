@@ -12,7 +12,7 @@ from os import popen
 from rich import print
 from rich.logging import RichHandler
 from sqlalchemy.orm import Session
-from typing import ContextManager, Dict, List, Type
+from typing import ContextManager, Dict, List, Type, Tuple
 
 from export_dpd import generate_dpd_html
 from export_epd import generate_epd_html
@@ -41,9 +41,17 @@ PYGLOSSARY_INFO = Info(
     description='Digital Pāḷi Dictionary is a feature-rich Pāḷi dictionary',
     website='https://digitalpalidictionary.github.io/')
 
+SizeDictType = Dict[str, int]
+DataType = List[Dict[str, str]]  # TODO Use dataclass for word entry
+
 
 def get_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description='Exporter')
+    parser.add_argument(
+        '--type',
+        choices=['DPD', 'DPS'],
+        default='DPD',
+        help='Type of dictionary to build')
     parser.add_argument(
         '--profiling',
         required=False,
@@ -60,47 +68,58 @@ def get_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def main(formats: List[str]) -> None:
-    timer = StopWatch()
+class Exporter:
+    def __init__(self, dict_type: str) -> None:
+        self.type = dict_type
 
-    print("[bright_yellow]exporting dpd")
-    size_dict: Dict[str, int] = {}
-    db_session: Session = get_db_session(PTH.dpd_db_path)
-    sandhi_contractions = make_sandhi_contraction_dict(db_session)
+    def run(self, formats: List[str]) -> None:
+        timer = StopWatch()
 
-    roots_count_dict = make_roots_count_dict(
-        db_session)
-    dpd_data_list, size_dict = generate_dpd_html(
-        db_session, PTH, sandhi_contractions, size_dict)
-    root_data_list, size_dict = generate_root_html(
-        db_session, PTH, roots_count_dict, size_dict)
-    variant_spelling_data_list, size_dict = generate_variant_spelling_html(
-        PTH, size_dict)
-    epd_data_list, size_dict = generate_epd_html(
-        db_session, PTH, size_dict)
-    help_data_list, size_dict = generate_help_html(
-        db_session, PTH, size_dict)
-    db_session.close()
+        print("[bright_yellow]exporting dpd")
 
-    combined_data_list: list = (
-        dpd_data_list +
-        root_data_list +
-        variant_spelling_data_list +
-        epd_data_list +
-        help_data_list
-    )
+        # TODO Conditionally get DPS data
+        data, size_dict = self._prepare_data()
 
-    write_limited_datalist(combined_data_list)
-    write_size_dict(size_dict)
-    if 'stardict' in formats:
-        export_to_goldendict(combined_data_list)
-        goldendict_unzip_and_copy()
-    if 'slob' in formats:
-        export_to_slob_zip(combined_data_list)
-    if 'mdict' in formats:
-        export_to_mdict(combined_data_list, PTH)  # TODO Try to optimize
+        write_limited_datalist(data)
+        write_size_dict(size_dict)
+        if 'stardict' in formats:
+            export_to_goldendict(data)
+            goldendict_unzip_and_copy()
+        if 'slob' in formats:
+            export_to_slob_zip(data)
+        if 'mdict' in formats:
+            export_to_mdict(data, PTH)
 
-    close_line(timer)
+        close_line(timer)
+
+
+    def _prepare_data(self) -> Tuple[DataType, SizeDictType]:
+        size_dict: SizeDictType = {}
+        db_session: Session = get_db_session(PTH.dpd_db_path)
+        sandhi_contractions = make_sandhi_contraction_dict(db_session)
+
+        roots_count_dict = make_roots_count_dict(
+            db_session)
+        dpd_data_list, size_dict = generate_dpd_html(
+            db_session, PTH, sandhi_contractions, size_dict)
+        root_data_list, size_dict = generate_root_html(
+            db_session, PTH, roots_count_dict, size_dict)
+        variant_spelling_data_list, size_dict = generate_variant_spelling_html(
+            PTH, size_dict)
+        epd_data_list, size_dict = generate_epd_html(
+            db_session, PTH, size_dict)
+        help_data_list, size_dict = generate_help_html(
+            db_session, PTH, size_dict)
+        db_session.close()
+
+        combined_data_list = (
+            dpd_data_list +
+            root_data_list +
+            variant_spelling_data_list +
+            epd_data_list +
+            help_data_list)
+
+        return combined_data_list, size_dict
 
 
 def export_to_goldendict(data_list: list) -> None:
@@ -165,4 +184,5 @@ if __name__ == "__main__":
         Context = MemoryProfiler
 
     with Context():
-        main(args.formats)
+        exporter = Exporter(args.type)
+        exporter.run(args.formats)

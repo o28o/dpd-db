@@ -15,6 +15,18 @@ That should create an SQLite database `./dpd.db` which can be accessed by [DB Br
 
 For a quick tutorial on how to access any information in the db with SQLAlchemy, see `scripts/db_search_example.py`.
 
+## Development
+
+The automated unit tests can be run with `pytest`.
+
+It is recommended to run this before `git push`, to guard against unintended runtime errors.
+
+This can be automated by enabling the local git hooks:
+
+```
+git config --local core.hooksPath .githooks/
+```
+
 ## Code Structure
 There are four parts to the code:
 1. Create the database and build up the tables of derived data.

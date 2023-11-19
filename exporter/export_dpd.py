@@ -15,8 +15,8 @@ from multiprocessing import Process, Manager
 from sqlalchemy.orm import object_session
 from sqlalchemy.orm.session import Session
 
-from helpers import EXCLUDE_FROM_FREQ
-from helpers import TODAY
+from .helpers import EXCLUDE_FROM_FREQ
+from .helpers import TODAY
 
 from db.models import PaliRoot, PaliWord
 from db.models import DerivedData
@@ -90,7 +90,7 @@ def get_family_compounds_for_pali_word(i: PaliWord) -> List[FamilyCompound]:
 
     return fc
 
-def get_family_set_for_pali_word(i: PaliWord) -> List[FamilySet]:
+def get_family_sets_for_pali_word(i: PaliWord) -> List[FamilySet]:
     db_session = object_session(i)
     if db_session is None:
         raise Exception("No db_session")
@@ -320,7 +320,7 @@ def generate_dpd_html(
                 family_root = fr,
                 family_word = fw,
                 family_compounds = get_family_compounds_for_pali_word(pw),
-                family_set = get_family_set_for_pali_word(pw),
+                family_set = get_family_sets_for_pali_word(pw),
             )
 
         dpd_db_data = [_add_parts(i.tuple()) for i in dpd_db]

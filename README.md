@@ -24,7 +24,7 @@ It is recommended to run this before `git push`, to guard against unintended run
 This can be automated by enabling the local git hooks:
 
 ```
-git config --local core.hooksPath .githooks/
+git config --local core.hooksPath githooks/
 ```
 
 ## Code Structure

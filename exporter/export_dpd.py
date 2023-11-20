@@ -62,54 +62,6 @@ class PaliWordTemplates:
             button_js = f.read()
         self.button_js = js_minify(button_js)
 
-def get_family_compounds_for_pali_word(i: PaliWord) -> List[FamilyCompound]:
-    db_session = object_session(i)
-    if db_session is None:
-        raise Exception("No db_session")
-
-    if i.family_compound:
-        fc = db_session.query(
-            FamilyCompound
-        ).filter(
-            FamilyCompound.compound_family.in_(i.family_compound_list),
-        ).all()
-
-        # sort by order of the  family compound list
-        word_order = i.family_compound_list
-        fc = sorted(fc, key=lambda x: word_order.index(x.compound_family))
-
-    else:
-        fc = db_session.query(
-            FamilyCompound
-        ).filter(
-            FamilyCompound.compound_family == i.pali_clean
-        ).all()
-
-    # Make sure it's not a lazy-loaded iterable.
-    fc = list(fc)
-
-    return fc
-
-def get_family_sets_for_pali_word(i: PaliWord) -> List[FamilySet]:
-    db_session = object_session(i)
-    if db_session is None:
-        raise Exception("No db_session")
-
-    fs = db_session.query(
-        FamilySet
-    ).filter(
-        FamilySet.set.in_(i.family_set_list)
-    ).all()
-
-    # sort by order of the  family set list
-    word_order = i.family_set_list
-    fs = sorted(fs, key=lambda x: word_order.index(x.set))
-
-    # Make sure it's not a lazy-loaded iterable.
-    fs = list(fs)
-
-    return fs
-
 PaliWordDbRowItems = Tuple[PaliWord, DerivedData, FamilyRoot, FamilyWord]
 
 class PaliWordDbParts(TypedDict):
@@ -231,7 +183,7 @@ def render_pali_word_dpd_html(db_parts: PaliWordDbParts,
     synonyms += dd.sinhala_list
     synonyms += dd.devanagari_list
     synonyms += dd.thai_list
-    synonyms += i.family_set_list
+    synonyms += i.family_set_key_list
     synonyms += [str(i.id)]
     size_dict["dpd_synonyms"] += len(str(synonyms))
 
@@ -319,8 +271,8 @@ def generate_dpd_html(
                 derived_data = dd,
                 family_root = fr,
                 family_word = fw,
-                family_compounds = get_family_compounds_for_pali_word(pw),
-                family_set = get_family_sets_for_pali_word(pw),
+                family_compounds = pw.family_compounds,
+                family_set = pw.family_sets,
             )
 
         dpd_db_data = [_add_parts(i.tuple()) for i in dpd_db]
@@ -506,7 +458,7 @@ def render_button_box_templ(
     if (i.meaning_1 and
             i.family_set):
 
-        if len(i.family_set_list) > 0:
+        if len(i.family_set_key_list) > 0:
             set_family_button = button_html.format(
                 target=f"set_family_{i.pali_1_}", name="set")
         else:
@@ -688,7 +640,7 @@ def render_family_set_templ(
     if (i.meaning_1 and
             i.family_set):
 
-        if len(i.family_set_list) > 0:
+        if len(i.family_set_key_list) > 0:
 
             return str(
                 family_set_templ.render(

@@ -13,7 +13,7 @@ from sqlalchemy.orm import mapped_column
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm import declared_attr
 from sqlalchemy.orm import object_session
-from sqlalchemy import Column, Integer
+from sqlalchemy import Column, Integer, Table
 
 from tools.link_generator import generate_link
 from tools.pali_sort_key import pali_sort_key
@@ -22,6 +22,19 @@ from tools.pali_sort_key import pali_sort_key
 class Base(DeclarativeBase):
     pass
 
+assoc_pali_words_to_family_compounds = Table(
+    'pali_words_to_family_compounds',
+    Base.metadata,
+    Column('pali_word_id', Integer, ForeignKey("pali_words.id", ondelete="CASCADE"), primary_key=True, nullable=False),
+    Column('family_compound_id', Integer, ForeignKey("family_compound.id", ondelete="CASCADE"), primary_key=True, nullable=False),
+)
+
+assoc_pali_words_to_family_sets = Table(
+    'pali_words_to_family_sets',
+    Base.metadata,
+    Column('pali_word_id', Integer, ForeignKey("pali_words.id", ondelete="CASCADE"), primary_key=True, nullable=False),
+    Column('family_set_set', Integer, ForeignKey("family_set.set", ondelete="CASCADE"), primary_key=True, nullable=False),
+)
 
 class InflectionTemplates(Base):
     __tablename__ = "inflection_templates"
@@ -158,8 +171,7 @@ class PaliWord(Base):
     family_word: Mapped[Optional[str]] = mapped_column(
         ForeignKey("family_word.word_family"), default='')
     family_compound: Mapped[Optional[str]] = mapped_column(default='')
-    family_set: Mapped[Optional[str]] = mapped_column(
-        ForeignKey("family_set.set"), default='')
+    family_set: Mapped[Optional[str]] = mapped_column(default='')
 
     construction:  Mapped[Optional[str]] = mapped_column(default='')
     derivative: Mapped[Optional[str]] = mapped_column(default='')
@@ -205,6 +217,16 @@ class PaliWord(Base):
 
     it: Mapped[InflectionTemplates] = relationship()
 
+    family_compounds: Mapped[List["FamilyCompound"]] = \
+        relationship("FamilyCompound",
+                     secondary=assoc_pali_words_to_family_compounds,
+                     back_populates="pali_words")
+
+    family_sets: Mapped[List["FamilySet"]] = \
+        relationship("FamilySet",
+                     secondary=assoc_pali_words_to_family_sets,
+                     back_populates="pali_words")
+
     @property
     def pali_1_(self) -> str:
         return self.pali_1.replace(" ", "_").replace(".", "_")
@@ -229,18 +251,52 @@ class PaliWord(Base):
             return ""
 
     @property
-    def family_compound_list(self) -> list:
-        if self.family_compound:
-            return self.family_compound.split(" ")
-        else:
-            return [self.family_compound]
+    def family_compounds_keys_from_ssv(self) -> List[str]:
+        if self.family_compound is None or self.family_compound == "":
+            return []
+        return self.family_compound.split(" ")
 
     @property
-    def family_set_list(self) -> list:
-        if self.family_set:
-            return self.family_set.split("; ")
-        else:
-            return [self.family_set]
+    def family_sets_keys_from_ssv(self) -> List[str]:
+        if self.family_set is None or self.family_set == "":
+            return []
+        return self.family_set.split("; ")
+
+    @property
+    def family_compounds_sorted(self) -> list:
+        """Sort by the order defined in family compound string list
+        """
+        if len(self.family_compounds) == 1:
+            return self.family_compounds
+
+        if self.family_compound is None:
+            return []
+
+        word_order = self.family_compounds_keys_from_ssv
+        fc = sorted(self.family_compounds, key=lambda x: word_order.index(x.compound_family))
+        return fc
+
+    @property
+    def family_sets_sorted(self) -> list:
+        """Sort by the order defined in family set string list
+        """
+        if len(self.family_sets) == 1:
+            return self.family_sets
+
+        if self.family_set is None:
+            return []
+
+        word_order = self.family_sets_keys_from_ssv
+        fs = sorted(self.family_sets, key=lambda x: word_order.index(x.set))
+        return fs
+
+    @property
+    def family_compound_key_list(self) -> List[str]:
+        return [i.compound_family for i in self.family_compounds_sorted]
+
+    @property
+    def family_set_key_list(self) -> List[str]:
+        return [i.set for i in self.family_sets_sorted]
 
     @property
     def root_count(self) -> int:
@@ -405,6 +461,11 @@ class FamilyCompound(Base):
     html: Mapped[str] = mapped_column(default='')
     count: Mapped[int] = mapped_column(default=0)
 
+    pali_words: Mapped[List[PaliWord]] = \
+        relationship("PaliWord",
+                     secondary=assoc_pali_words_to_family_compounds,
+                     back_populates="family_compounds")
+
     def __repr__(self) -> str:
         return f"FamilyCompound: {self.id} {self.compound_family} {self.count}"
 
@@ -424,6 +485,11 @@ class FamilySet(Base):
     set: Mapped[str] = mapped_column(primary_key=True)
     html: Mapped[str] = mapped_column(default='')
     count: Mapped[int] = mapped_column(default=0)
+
+    pali_words: Mapped[List[PaliWord]] = \
+        relationship("PaliWord",
+                     secondary=assoc_pali_words_to_family_sets,
+                     back_populates="family_sets")
 
     def __repr__(self) -> str:
         return f"FamilySet: {self.set} {self.count}"

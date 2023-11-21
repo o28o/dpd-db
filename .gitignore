@@ -7,9 +7,6 @@ __pycache__/
 *.log
 *.sqlite3
 *~lock.*
-.env
-.env.txt
-dotenv.txt
 time_log.dat
 time_log.png
 anki_csvs/

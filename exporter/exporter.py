@@ -7,7 +7,8 @@ import zipfile
 import csv
 import pickle
 
-from subprocess import Popen, PIPE
+import os
+from os import popen
 from pathlib import Path
 from rich import print
 from sqlalchemy.orm import Session
@@ -29,30 +30,22 @@ from tools.tic_toc import tic, toc, bip, bop
 from tools.stardict import export_words_as_stardict_zip, ifo_from_opts
 from tools.sandhi_contraction import make_sandhi_contraction_dict
 from tools.paths import ProjectPaths
-from tools.configger import config_test
+from tools.configger import config_read, config_test
 from tools.utils import RenderedSizes, default_rendered_sizes
 from tools import time_log
-from dotenv import load_dotenv
 
 tic()
-
-for i in ['.env', '.env.txt', 'dotenv.txt']:
-    p = Path(".").joinpath(i)
-    if p.exists():
-        load_dotenv(p)
-        break
-
-s = os.getenv('DB_ITEMS_LIMIT')
-if s is None or s == "":
-    DB_ITEMS_LIMIT = None
-else:
-    DB_ITEMS_LIMIT = int(s)
 
 def main():
     print("[bright_yellow]exporting dpd")
 
-    if DB_ITEMS_LIMIT:
-        print(f"[bright_yellow]DB_ITEMS_LIMIT = {DB_ITEMS_LIMIT}")
+    s = config_read("dictionary", "db_items_limit")
+    db_items_limit: Optional[int] = None
+    if s != "":
+        db_items_limit = int(s)
+
+    if db_items_limit:
+        print(f"[bright_yellow]db_items_limit = {db_items_limit}")
 
     time_log.start(start_new=True)
     time_log.log("exporter.py::main()")
@@ -77,7 +70,7 @@ def main():
     roots_count_dict = make_roots_count_dict(db_session)
 
     time_log.log("generate_dpd_html()")
-    generate_dpd_html(db_session, pth, sandhi_contractions, cf_set, dpd_data_list, rendered_sizes, DB_ITEMS_LIMIT)
+    generate_dpd_html(db_session, pth, sandhi_contractions, cf_set, dpd_data_list, rendered_sizes, db_items_limit)
 
     time_log.log("generate_root_html()")
     generate_root_html(db_session, pth, roots_count_dict, dpd_data_list, rendered_sizes)
@@ -100,14 +93,14 @@ def main():
     write_size_dict(pth, rendered_sizes)
 
     time_log.log("export_to_goldendict()")
-    export_to_goldendict(pth, dpd_data_list, DB_ITEMS_LIMIT)
+    export_to_goldendict(pth, dpd_data_list, db_items_limit)
 
     time_log.log("goldendict_unzip_and_copy()")
     goldendict_unzip_and_copy(pth)
 
     if make_mdct is True:
         time_log.log("export_to_mdict()")
-        export_to_mdict(dpd_data_list, pth, DB_ITEMS_LIMIT)
+        export_to_mdict(dpd_data_list, pth, db_items_limit)
 
     toc()
     time_log.log("exporter.py::main() return")

@@ -34,6 +34,14 @@ katakamma 1
 katakamma 2
 katakammaphassapaccayā
 kattabbakamma
+kamma 1
+kamma 2
+kamma 3
+kamma 4
+kamma 5
+kamma 6
+kamma 7
+kamma 8
 kammakata
 kammakara 1
 kammakara 2

@@ -162,6 +162,11 @@ saññasaññī
 saññasatta
 saññaṃ karoti 1
 saññaṃ karoti 2
+saññā 1
+saññā 2
+saññā 3
+saññā 4
+saññā 5
 saññākāyā
 saññākkhandha
 saññāgata 1

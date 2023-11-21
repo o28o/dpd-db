@@ -1,5 +1,25 @@
 from typing import List, TypedDict
 
+import os, datetime
+
+s = os.getenv('TODAY')
+if s is None or s == "":
+    today_date = None
+else:
+    today_date = s
+
+if today_date is None:
+    TODAY = datetime.date.today()
+
+else:
+    TODAY = datetime.datetime.strptime(today_date, "%Y-%m-%d").date()
+
+EXCLUDE_FROM_SETS: set = {
+    "dps", "ncped", "pass1", "sandhi"}
+
+EXCLUDE_FROM_FREQ: set = {
+    "abbrev", "cs", "idiom", "letter", "prefix", "root", "suffix", "ve"}
+
 class RenderResult(TypedDict):
     word: str
     definition_html: str
@@ -73,13 +93,6 @@ def default_rendered_sizes() -> RenderedSizes:
 
         help = 0,
     )
-
-def sum_rendered_sizes(sizes: List[RenderedSizes]) -> RenderedSizes:
-    res = default_rendered_sizes()
-    for i in sizes:
-        for k, v in i.items():
-            res[k] += v
-    return res
 
 def list_into_batches(input_list: List, num_batches: int) -> List[List]:
     """Splits a list into a number of lists.

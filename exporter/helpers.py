@@ -1,7 +1,6 @@
 """A few helpful lists and functions for the exporter."""
 
 from typing import Dict, List, Set, Optional
-from datetime import date
 
 from sqlalchemy.orm import Session
 
@@ -9,16 +8,7 @@ from db.get_db_session import get_db_session
 from db.models import PaliWord
 from tools.paths import ProjectPaths
 
-TODAY = date.today()
-
-EXCLUDE_FROM_SETS: set = {
-    "dps", "ncped", "pass1", "sandhi"}
-
-EXCLUDE_FROM_FREQ: set = {
-    "abbrev", "cs", "idiom", "letter", "prefix", "root", "suffix", "ve"}
-
 _cached_cf_set: Optional[Set[str]] = None
-
 
 def cf_set_gen(pth: ProjectPaths) -> Set[str]:
     """generate a list of all compounds families"""

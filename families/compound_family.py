@@ -141,8 +141,14 @@ def add_all_cf_to_db(pth: ProjectPaths) -> CompoundDict:
     db_session.commit()
 
     for i in dpd_db:
-        if (i.family_compound is None or i.family_compound == "") \
-           and pali_word_is_family_compound(i):
+        if (i.family_compound is None or i.family_compound == ""):
+
+            # NOTE: Removing this condition adds the compounds to 'gata 1', but
+            # also adds others, e.g. 'kamma 1, etc.' to 'compounds with kamma',
+            # or 'paccayā' under 'compounds with paccayā'
+            # (aṭṭhakusalakammapaccayā), which were not present before.
+            #
+            # and pali_word_is_family_compound(i):
 
             comps = db_session.query(FamilyCompound) \
                             .filter(FamilyCompound.compound_family == i.pali_clean) \

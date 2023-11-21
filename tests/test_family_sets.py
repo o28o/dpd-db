@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import os
 from pathlib import Path
 from typing import Dict, List
 
@@ -120,6 +121,11 @@ def write_family_sets_tables():
     db_session.close()
 
 if __name__ == "__main__":
+    # export TODAY=2023-11-20
+    s = os.getenv('TODAY')
+    if s is None or s != "2023-11-20":
+        raise Exception("Set the TODAY env variable with 'export TODAY=2023-11-20' for consistent test outputs.")
+
     for i in [SET_TABLES_DIR, SET_TO_WORDS_DIR]:
         if not i.exists():
             i.mkdir(parents=True)

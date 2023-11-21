@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import os
 from pathlib import Path
 from typing import Dict, List
 
@@ -31,6 +32,7 @@ WORDS_REL_COMPS = {
     "aññāsikoṇḍañña": ["aññāsi"],
     "assayuja 1": ["assa1", "yuja"],
     "bodhirukkha": ["bodhi", "rukkha"],
+    "gata 1": ["gata"],
 }
 
 def test_pali_word_to_family_compounds_relation():
@@ -108,10 +110,7 @@ def write_compound_to_words_lists():
 def write_family_compounds_tables():
     db_session = get_db_session(PTH.dpd_db_path)
 
-    for pali_1, comps in WORDS_REL_COMPS.items():
-        if len(comps) == 0:
-            continue
-
+    for pali_1 in WORDS_REL_COMPS.keys():
         w = db_session.query(PaliWord).filter(PaliWord.pali_1 == pali_1).first()
         if w is None:
             raise Exception(f"Cannot find word: {pali_1}")
@@ -125,6 +124,11 @@ def write_family_compounds_tables():
     db_session.close()
 
 if __name__ == "__main__":
+    # export TODAY=2023-11-20
+    s = os.getenv('TODAY')
+    if s is None or s != "2023-11-20":
+        raise Exception("Set the TODAY env variable with 'export TODAY=2023-11-20' for consistent test outputs.")
+
     for i in [COMP_TABLES_DIR, COMP_TO_WORDS_DIR]:
         if not i.exists():
             i.mkdir(parents=True)

@@ -17,7 +17,7 @@ For a quick tutorial on how to access any information in the db with SQLAlchemy,
 
 ## Development
 
-The automated unit tests can be run with `pytest`.
+The automated unit tests can be run with `make test`.
 
 It is recommended to run this before `git push`, to guard against unintended runtime errors.
 

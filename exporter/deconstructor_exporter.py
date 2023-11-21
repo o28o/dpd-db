@@ -25,7 +25,7 @@ from tools.tic_toc import tic, toc, bip, bop
 from tools.sandhi_contraction import make_sandhi_contraction_dict
 from tools.stardict import export_words_as_stardict_zip, ifo_from_opts
 from tools.configger import config_test
-from helpers import TODAY
+from tools.utils import TODAY
 from tools.writemdict.writemdict import MDictWriter
 
 sys.path.insert(1, 'tools/writemdict')

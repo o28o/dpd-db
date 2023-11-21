@@ -2,6 +2,7 @@
 
 """Export DPD for GoldenDict and MDict."""
 
+from typing import Optional
 import zipfile
 import csv
 import pickle
@@ -31,11 +32,27 @@ from tools.paths import ProjectPaths
 from tools.configger import config_test
 from tools.utils import RenderedSizes, default_rendered_sizes
 from tools import time_log
+from dotenv import load_dotenv
 
 tic()
 
+for i in ['.env', '.env.txt', 'dotenv.txt']:
+    p = Path(".").joinpath(i)
+    if p.exists():
+        load_dotenv(p)
+        break
+
+s = os.getenv('DB_ITEMS_LIMIT')
+if s is None or s == "":
+    DB_ITEMS_LIMIT = None
+else:
+    DB_ITEMS_LIMIT = int(s)
+
 def main():
     print("[bright_yellow]exporting dpd")
+
+    if DB_ITEMS_LIMIT:
+        print(f"[bright_yellow]DB_ITEMS_LIMIT = {DB_ITEMS_LIMIT}")
 
     time_log.start(start_new=True)
     time_log.log("exporter.py::main()")
@@ -60,7 +77,7 @@ def main():
     roots_count_dict = make_roots_count_dict(db_session)
 
     time_log.log("generate_dpd_html()")
-    generate_dpd_html(db_session, pth, sandhi_contractions, cf_set, dpd_data_list, rendered_sizes)
+    generate_dpd_html(db_session, pth, sandhi_contractions, cf_set, dpd_data_list, rendered_sizes, DB_ITEMS_LIMIT)
 
     time_log.log("generate_root_html()")
     generate_root_html(db_session, pth, roots_count_dict, dpd_data_list, rendered_sizes)
@@ -83,20 +100,22 @@ def main():
     write_size_dict(pth, rendered_sizes)
 
     time_log.log("export_to_goldendict()")
-    export_to_goldendict(pth, dpd_data_list)
+    export_to_goldendict(pth, dpd_data_list, DB_ITEMS_LIMIT)
 
     time_log.log("goldendict_unzip_and_copy()")
     goldendict_unzip_and_copy(pth)
 
     if make_mdct is True:
         time_log.log("export_to_mdict()")
-        export_to_mdict(dpd_data_list, pth)
+        export_to_mdict(dpd_data_list, pth, DB_ITEMS_LIMIT)
 
     toc()
     time_log.log("exporter.py::main() return")
 
 
-def export_to_goldendict(pth: ProjectPaths, data_list: ListProxy) -> None:
+def export_to_goldendict(pth: ProjectPaths,
+                         data_list: ListProxy,
+                         db_items_limit: Optional[int] = None) -> None:
     """generate goldedict zip"""
     bip()
 
@@ -109,7 +128,12 @@ def export_to_goldendict(pth: ProjectPaths, data_list: ListProxy) -> None:
             "website": "https://digitalpalidictionary.github.io/", }
     )
 
-    export_words_as_stardict_zip(data_list, ifo, pth.dpd_zip_path, pth.icon_path)
+    if db_items_limit:
+        items_list = data_list[0:db_items_limit]
+    else:
+        items_list = data_list
+
+    export_words_as_stardict_zip(items_list, ifo, pth.dpd_zip_path, pth.icon_path)
 
     # add bmp icon for android
     with zipfile.ZipFile(pth.dpd_zip_path, 'a') as zipf:

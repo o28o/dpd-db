@@ -14,13 +14,15 @@ import multiprocessing
 from multiprocessing.managers import ListProxy
 from pathlib import Path
 import datetime
-from typing import List, TypedDict, Optional
+from typing import List, TypedDict, Optional, Union
 import shutil
 from zipfile import ZipFile
 import struct
 import idzip
 import re
 from enum import Enum
+
+from tools.utils import RenderResult
 
 
 class QueryType(str, Enum):
@@ -567,7 +569,7 @@ class WriteResult(TypedDict):
     syn_count: Optional[int]
 
 
-def write_words(words: ListProxy, paths: StarDictPaths) -> WriteResult:
+def write_words(words: Union[ListProxy, List[RenderResult]], paths: StarDictPaths) -> WriteResult:
     """Writes .idx, .dict.dz, .syn.dz"""
 
     res = WriteResult(
@@ -644,7 +646,7 @@ def write_stardict_zip(paths: StarDictPaths):
                 z.write(p, p.relative_to(paths['unzipped_dir'].parent))
 
 
-def export_words_as_stardict_zip(words: ListProxy,
+def export_words_as_stardict_zip(words: Union[ListProxy, List[RenderResult]],
                                  ifo: StarDictIfo,
                                  zip_path: Path,
                                  icon_path: Optional[Path] = None):

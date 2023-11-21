@@ -4,6 +4,7 @@
 
 from functools import reduce
 from multiprocessing.managers import ListProxy
+from typing import Optional
 from rich import print
 from tools.tic_toc import bip, bop
 from tools.writemdict.writemdict import MDictWriter
@@ -18,12 +19,19 @@ def mdict_synonyms(all_items, item):
     return all_items
 
 
-def export_to_mdict(data_list: ListProxy, PTH: ProjectPaths) -> None:
+def export_to_mdict(data_list: ListProxy,
+                    PTH: ProjectPaths,
+                    db_items_limit: Optional[int] = None) -> None:
     print("[green]converting to mdict")
+
+    if db_items_limit:
+        items_list = data_list[0:db_items_limit]
+    else:
+        items_list = data_list
 
     bip()
     print("[white]adding 'mdict' and h3 tag", end=" ")
-    for i in data_list:
+    for i in items_list:
         # i: RenderResult
         i['definition_html'] = i['definition_html'].replace(
             "GoldenDict", "MDict")
@@ -32,8 +40,8 @@ def export_to_mdict(data_list: ListProxy, PTH: ProjectPaths) -> None:
 
     bip()
     print("[white]reducing synonyms", end=" ")
-    dpd_data = reduce(mdict_synonyms, data_list, [])
-    del data_list
+    dpd_data = reduce(mdict_synonyms, items_list, [])
+    del items_list
     print(bop())
 
     print("[white]writing mdict", end=" ")

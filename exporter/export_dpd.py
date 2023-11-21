@@ -8,7 +8,7 @@ from mako.template import Template
 from minify_html import minify
 from rich import print
 from sqlalchemy import and_
-from typing import List, Set, TypedDict, Tuple
+from typing import List, Optional, Set, TypedDict, Tuple
 from multiprocessing.managers import ListProxy
 from multiprocessing import Process
 
@@ -200,7 +200,8 @@ def generate_dpd_html(
         sandhi_contractions: SandhiContractions,
         cf_set: Set[str],
         dpd_data_list: ListProxy,
-        rendered_sizes: ListProxy) -> None:
+        rendered_sizes: ListProxy,
+        db_items_limit: Optional[int] = None) -> None:
     time_log.log("generate_dpd_html()")
 
     print("[green]generating dpd html")
@@ -228,6 +229,12 @@ def generate_dpd_html(
         limit = 2000
     else:
         limit = 5000
+
+    if db_items_limit:
+        if db_items_limit < pali_words_count:
+            pali_words_count = db_items_limit
+        if db_items_limit < limit:
+            limit = db_items_limit
 
     offset = 0
 

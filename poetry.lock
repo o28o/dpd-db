@@ -2156,6 +2156,20 @@ files = [
 lxml = ">=2.3.2"
 
 [[package]]
+name = "python-dotenv"
+version = "1.0.0"
+description = "Read key-value pairs from a .env file and set them as environment variables"
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "python-dotenv-1.0.0.tar.gz", hash = "sha256:a8df96034aae6d2d50a4ebe8216326c61c3eb64836776504fcca410e5937a3ba"},
+    {file = "python_dotenv-1.0.0-py3-none-any.whl", hash = "sha256:f5971a9226b701070a4bf2c38c89e5a3f0d64de8debda981d1db98583009122a"},
+]
+
+[package.extras]
+cli = ["click (>=5.0)"]
+
+[[package]]
 name = "python-idzip"
 version = "0.3.9"
 description = "DictZip - Random Access gzip files"
@@ -2904,4 +2918,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "d6f35bc4c31aecf31257379bfca5db2761b6771171ef1d17ec35d8eb88fc65e1"
+content-hash = "4532f26e5d176b948eab6bae6aa205e37b91908f8b02ca6b8ffa831720fc546c"

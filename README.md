@@ -17,7 +17,7 @@ For a quick tutorial on how to access any information in the db with SQLAlchemy,
 
 ## Development
 
-See the [release checklist.md](docs/release checklist.md).
+See the [release checklist.md](docs/release%20checklist.md).
 
 ### Unit Tests
 

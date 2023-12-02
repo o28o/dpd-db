@@ -104,6 +104,7 @@ puṇḍarīka 1
 puṇḍarīka 2
 punnāga
 pokkhara 1
+poṭakila
 poṭakī
 phaṇijjaka
 phandana 3
@@ -158,16 +159,18 @@ saṅkha 2
 saṇa
 saṇṇa
 salaḷa
+sallakī
 sāka 1
 sāka 2
-sāṇa 1
-sāṇa 2
+sāṇa 1.1
+sāṇa 1.2
 sāmāka
 sāla 1.1
 sālarukkha
 sāli
 sāsapa
 siṅgivera
+siṅgīvera
 simbalivana
 simbalī
 sirīsa

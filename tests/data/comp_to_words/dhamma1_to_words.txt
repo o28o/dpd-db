@@ -97,6 +97,7 @@ kusaladhammūpasampadā
 khandhāyatanadhātudhamma
 khayadhamma
 khiyyadhamma
+khiyyanadhamma
 khīyanadhamma
 khīyanadhammaṃ āpajjati
 khīyanadhammaṃ āpanna
@@ -172,6 +173,7 @@ dhammaja
 dhammajīvī
 dhammaṭṭaṭṭhāna
 dhammaṭṭha
+dhammaṭṭha 2
 dhammaṭṭhapaṭisaṃyutta
 dhammaṭṭhitatā
 dhammatakka
@@ -269,7 +271,7 @@ dhammavādī 1
 dhammavicaya
 dhammavicayasambojjhaṅga
 dhammavicāra
-dhammavitakka
+dhammavitakka 1
 dhammavitakkāvasissati
 dhammavitakkovasissati
 dhammavinaya
@@ -430,7 +432,9 @@ methunadhammasamāpatti
 methunadhammasamāyoga
 mosadhamma
 mohadhamma
-yathādhamma
+yathādhamma 1
+yathādhamma 2
+yathādhammavihārī
 yathādhammaṃ
 ratanadhamma
 rukkhadhamma
@@ -463,7 +467,7 @@ saddhamma 1.1
 saddhamma 1.2
 saddhamma 2.1
 saddhammasaññatti
-sadhamma
+sadhamma 1.1
 sadhammukkaṃsanā
 sappurisadhamma 1
 sappurisadhamma 2
@@ -495,6 +499,7 @@ sāraṇīyadhammapūraka
 sukkadhamma
 sukhadhamma
 sucaritadhamma
+sudhammasabhā
 sokadhamma
 svākkhātadhamma
 hasadhamma

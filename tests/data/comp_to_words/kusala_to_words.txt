@@ -23,6 +23,7 @@ kiṃkusalaṃgavesī
 kusalakamma
 kusalakammapatha
 kusalakiriya
+kusalakiriyā
 kusalagavesī
 kusaladhamma
 kusaladhammacchanda
@@ -70,6 +71,7 @@ paṭiccasamuppādakusalatā
 paracittakusala
 paracittapariyāyakusala
 paramakusala
+matikusala
 manasikārakusalatā
 lakkhaṇakusala 1
 lakkhaṇakusala 2

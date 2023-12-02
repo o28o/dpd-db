@@ -111,6 +111,7 @@ paṭikkūlasaññā
 paṭikkūlasaññābhāvanā
 paṭighasaññā 1
 paṭighasaññā 2
+paṭīghasaññā
 paṭhamajjhānasaññā
 pathavisaññā
 pathavīsaññā
@@ -157,6 +158,7 @@ vissajjitasañña
 vihiṃsāsaññā
 saññakkharasaññanissita
 saññagga
+saññaja
 saññatta 2.1
 saññasaññī
 saññasatta

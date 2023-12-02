@@ -65,7 +65,7 @@ antaraṭṭhaka 1.1
 ariyaaṭṭhaṅgikamagga
 ariyañcaṭṭhaṅgikaṃ
 ariyāṭṭhaṅgikamagga
-asīti
+asīti 1.1
 kusaṭṭhaka
 guhaṭṭhaka
 paramaṭṭhaka

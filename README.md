@@ -17,6 +17,10 @@ For a quick tutorial on how to access any information in the db with SQLAlchemy,
 
 ## Development
 
+See the [release checklist.md](docs/release checklist.md).
+
+### Unit Tests
+
 The automated unit tests can be run with `make test`.
 
 It is recommended to run this before `git push`, to guard against unintended runtime errors.
@@ -26,6 +30,21 @@ This can be automated by enabling the local git hooks:
 ```
 git config --local core.hooksPath githooks/
 ```
+
+If the dictionary data hasn't changed, run `make test`.
+
+Since the dictionary data is likely to have changed, run the table test .py files, their `main()` will re-create the test tables in `tests/data/`
+
+``` shell
+./tests/test_family_compounds.py
+./tests/test_family_sets.py
+```
+
+Review the git diff (e.g. run `meld . &`) to see that the changed tables make sense.
+
+Run `make test` to run the unit tests.
+
+If a test fails, update either the test or the code which causes the error.
 
 ## Code Structure
 There are four parts to the code:

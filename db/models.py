@@ -227,6 +227,20 @@ class PaliWord(Base):
                      back_populates="pali_words")
 
     @property
+    def is_draft(self) -> bool:
+        return (self.meaning_1 is None or self.meaning_1 == "")
+
+    @property
+    def is_family_compound(self) -> bool:
+        test1 = re.findall(r"\bcomp\b", self.grammar) != []
+        test2 = "sandhi" in self.pos
+        test3 = "idiom" in self.pos
+        test4 = len(re.sub(r" \d.*$", "", self.pali_1)) < 30
+        test5 = (not self.is_draft)
+
+        return ((test1 or test2 or test3) and test4 and test5)
+
+    @property
     def pali_1_(self) -> str:
         return self.pali_1.replace(" ", "_").replace(".", "_")
 

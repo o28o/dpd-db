@@ -2,7 +2,6 @@
 
 """Compile compound familes and save to database."""
 
-import re
 from typing import Dict, List, Tuple, TypedDict
 from rich import print
 
@@ -43,15 +42,6 @@ def check_cf(cf: str, pali_1: str) -> None:
     elif cf == "+":
         raise Exception(f"[bright_red]ERROR: + found in .family_compound please remove! pali_1 = {pali_1}")
 
-def pali_word_is_family_compound(i: PaliWord) -> bool:
-    test1 = re.findall(r"\bcomp\b", i.grammar) != []
-    test2 = "sandhi" in i.pos
-    test3 = "idiom" in i.pos
-    test4 = len(re.sub(r" \d.*$", "", i.pali_1)) < 30
-    test5 = (i.meaning_1 is not None and i.meaning_1 != "")
-
-    return ((test1 or test2 or test3) and test4 and test5)
-
 def create_comp_fam_dict(dpd_db: List[PaliWord]) -> CompoundDict:
     """Create a dict of all compound families.
     """
@@ -64,7 +54,7 @@ def create_comp_fam_dict(dpd_db: List[PaliWord]) -> CompoundDict:
         for cf in i.family_compounds_keys_from_ssv:
             check_cf(cf, i.pali_1)
 
-            if pali_word_is_family_compound(i):
+            if i.is_family_compound:
 
                 if cf not in cf_dict.keys():
                     cf_dict[cf] = CompoundItem(headwords=[], anki_data=[])
@@ -93,7 +83,12 @@ def render_family_compounds_table_html(fc: FamilyCompound) -> str:
 
     html_string = "\n<table class='family'>\n"
 
-    for i in sorted(fc.pali_words, key=lambda x: pali_sort_key(x.pali_1)):
+    # Example with aṭṭhakusalakammapaccayā:
+    # Under 'compounds with kamma', don't include 'kamma 1', 'kamma 2', etc.
+    # under 'compounds with paccayā', don't include 'paccayā'.
+    family_comp_words = [i for i in fc.pali_words if i.is_family_compound]
+
+    for i in sorted(family_comp_words, key=lambda x: pali_sort_key(x.pali_1)):
         html_string += pali_word_table_row(i)
 
     html_string += "\n\n</table>\n"
@@ -142,13 +137,12 @@ def add_all_cf_to_db(pth: ProjectPaths) -> CompoundDict:
 
     for i in dpd_db:
         if (i.family_compound is None or i.family_compound == ""):
-
-            # NOTE: Removing this condition adds the compounds to 'gata 1', but
-            # also adds others, e.g. 'kamma 1, etc.' to 'compounds with kamma',
-            # or 'paccayā' under 'compounds with paccayā'
-            # (aṭṭhakusalakammapaccayā), which were not present before.
+            # A PaliWord may not be a compound (empty .family_compound field,
+            # e.g. 'gata 1'), but the word itself is representative of a
+            # FamilyCompound ('gata 1' → 'gata').
             #
-            # and pali_word_is_family_compound(i):
+            # .pali_clean is .pali_1 without numbers, this should be used to
+            # associate the word, thus (gata 1, gata 2, etc. → gata).
 
             comps = db_session.query(FamilyCompound) \
                             .filter(FamilyCompound.compound_family == i.pali_clean) \
@@ -159,6 +153,7 @@ def add_all_cf_to_db(pth: ProjectPaths) -> CompoundDict:
                     cf.pali_words.append(i)
 
         else:
+            # Associate PaliWord to the FamilyCompounds listed in PaliWord.compound_family
             for cf_key in i.family_compounds_keys_from_ssv:
                 if cf_key in cf_dict:
                     if i.pali_1 in cf_dict[cf_key]["headwords"]:

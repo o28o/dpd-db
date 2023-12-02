@@ -359,6 +359,15 @@ def render_dpd_definition_templ(
             summary=summary,
             complete=complete))
 
+def pali_word_should_have_compounds_button(i: PaliWord, cf_set: Set[str]) -> bool:
+    should_have_comps = (
+        # sometimes there's an empty compound family, so
+        any(item in cf_set for item in i.family_compounds_keys_from_ssv) or
+        # add a button to the word itself
+        i.pali_clean in cf_set
+    )
+
+    return (not i.is_draft and should_have_comps)
 
 def render_button_box_templ(
         __pth__: ProjectPaths,
@@ -424,14 +433,7 @@ def render_button_box_templ(
         word_family_button = ""
 
     # compound_family_button
-    if (
-        i.meaning_1 and
-        (
-            # sometimes there's an empty compound family, so
-            any(item in cf_set for item in i.family_compound_list) or
-            # add a button to the word itself
-            i.pali_clean in cf_set)
-    ):
+    if pali_word_should_have_compounds_button(i, cf_set):
 
         if i.family_compound is not None and " " not in i.family_compound:
             compound_family_button = button_html.format(

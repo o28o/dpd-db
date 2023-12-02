@@ -4,6 +4,7 @@
 
 import re
 import pickle
+from typing import Dict, List, Set
 import pyperclip
 
 from rich import print
@@ -14,20 +15,21 @@ from tools.tic_toc import tic, toc
 from tools.meaning_construction import clean_construction
 from tools.paths import ProjectPaths
 
+WordSets = Dict[str, Set[str]]
 
 def main():
     tic()
     print("[bright_yellow]finding missing family_compounds")
     pth = ProjectPaths()
     db_session = get_db_session(pth.dpd_db_path)
-    db = db_session.query(PaliWord).all()
-    d: dict = make_dict_of_sets(db)
+    db: List[PaliWord] = db_session.query(PaliWord).all()
+    d: WordSets = make_dict_of_sets(db)
     failures = test_family_compound(d)
     add_to_db(failures)
     toc()
 
 
-def make_dict_of_sets(db):
+def make_dict_of_sets(db: List[PaliWord]) -> WordSets:
     print("[green]making sets")
 
     d = {
@@ -80,7 +82,7 @@ def make_dict_of_sets(db):
     return d
 
 
-def load_exceptions():
+def load_exceptions() -> Set[str]:
     try:
         with open("family_compound_exceptions") as file:
             exceptions = pickle.load(file) # type: ignore
@@ -89,14 +91,14 @@ def load_exceptions():
     return exceptions
 
 
-def test_family_compound(d):
+def test_family_compound(d: WordSets) -> Set[str]:
     # "all_words_in_construction": set(),
     # "all_words_in_family_compound": set(),
     # "all_clean_headwords": set(),
     # "all_empty_family_compounds": set(),
     # "all_compound_headwords": set()
 
-    failures = set()
+    failures: Set[str] = set()
     for word in d["all_empty_family_compounds"]:
         if (
             word in d["all_words_in_construction"] and
@@ -109,7 +111,7 @@ def test_family_compound(d):
     return failures
 
 
-def add_to_db(failures):
+def add_to_db(failures: Set[str]) -> None:
     print("[green]adding failures to db")
     exceptions = load_exceptions()
     print(len(failures))

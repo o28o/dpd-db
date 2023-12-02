@@ -7,8 +7,7 @@ import zipfile
 import csv
 import pickle
 
-import os
-from os import popen
+from subprocess import Popen, PIPE
 from pathlib import Path
 from rich import print
 from sqlalchemy.orm import Session

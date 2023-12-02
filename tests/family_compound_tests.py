@@ -57,7 +57,7 @@ def make_dict_of_sets(db):
             i.family_compound
         ):
             d["all_words_in_family_compound"].update(
-                i.family_compound_list)
+                i.family_compound_key_list)
 
         # all_clean_headwords
         if (i.meaning_1):
@@ -83,7 +83,7 @@ def make_dict_of_sets(db):
 def load_exceptions():
     try:
         with open("family_compound_exceptions") as file:
-            exceptions = pickle.load(file)
+            exceptions = pickle.load(file) # type: ignore
     except FileNotFoundError:
         exceptions = set()
     return exceptions

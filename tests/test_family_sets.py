@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 
-import os
 from pathlib import Path
 from typing import Dict, List
 
 from db.models import FamilySet, PaliWord
 from exporter.export_dpd import PaliWordTemplates, render_family_set_templ
+from tools.configger import config_read
 from tools.pali_sort_key import pali_sort_key
 from tools.paths import ProjectPaths
 from db.get_db_session import get_db_session
@@ -121,10 +121,13 @@ def write_family_sets_tables():
     db_session.close()
 
 if __name__ == "__main__":
-    # export TODAY=2023-11-20
-    s = os.getenv('TODAY')
+    # today = 2023-11-20
+    s = config_read("info", "today")
     if s is None or s != "2023-11-20":
-        raise Exception("Set the TODAY env variable with 'export TODAY=2023-11-20' for consistent test outputs.")
+        raise Exception("""For consistent test outputs, set info.today = 2023-11-20 in config.ini
+[info]
+today = 2023-11-20
+""")
 
     for i in [SET_TABLES_DIR, SET_TO_WORDS_DIR]:
         if not i.exists():

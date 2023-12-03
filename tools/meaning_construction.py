@@ -9,16 +9,16 @@ from db.models import PaliWord
 
 
 def make_meaning(i: PaliWord) -> str:
-	"""Compile meaning_1 and literal meaning, or return meaning_2."""
-	if i.meaning_1:
-		meaning: str = i.meaning_1
-		if i.meaning_lit:
-			meaning += f"; lit. {i.meaning_lit}"
-		return meaning
-	elif i.meaning_2:
-		return i.meaning_2
-	else:
-		return ""
+    """Compile meaning_1 and literal meaning, or return meaning_2."""
+    if i.meaning_1:
+        meaning: str = i.meaning_1
+        if i.meaning_lit:
+            meaning += f"; lit. {i.meaning_lit}"
+        return meaning
+    elif i.meaning_2:
+        return i.meaning_2
+    else:
+        return ""
 
 def make_meaning_html(i: PaliWord) -> str:
     """Compile html of meaning_1 and literal meaning, or return meaning_2.

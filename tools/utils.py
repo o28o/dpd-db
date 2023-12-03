@@ -1,8 +1,9 @@
 from typing import List, TypedDict
+import datetime
 
-import os, datetime
+from tools.configger import config_read
 
-s = os.getenv('TODAY')
+s = config_read("info", "today")
 if s is None or s == "":
     today_date = None
 else:
